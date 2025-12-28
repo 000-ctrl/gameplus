@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>猜数字小游戏 - 超级版</title>
+    <link rel="stylesheet" href="./css/style.css">
+	<link rel="shortcut icon" href="./ico/number.svg" type="image/x-icon"/>
+</head>
+<body>
+    <!-- 粒子背景 -->
+    <div class="particles" id="particles"></div>
+
+    <!-- 顶部工具栏 -->
+    <div class="top-toolbar">
+        <button class="tool-btn" id="themeToggle" title="切换主题">🌓 主题</button>
+        <button class="tool-btn" id="soundToggle" title="音效开关">🔊 音效</button>
+        <button class="tool-btn" id="helpToggle" title="帮助中心">❓ 帮助</button>
+    </div>
+
+    <!-- 庆祝动画容器 -->
+    <div class="celebration" id="celebration"></div>
+
+    <!-- 通知容器 -->
+    <div id="notificationContainer"></div>
+
+    <!-- 游戏主卡片 -->
+    <main class="card">
+        <header>
+            <h1>猜数字小游戏 - 超级版</h1>
+            <p>挑战你的逻辑推理能力，解锁成就，创造记录！</p>
+        </header>
+
+        <!-- 挑战模式状态栏 -->
+        <div class="challenge-info" id="challengeInfo">
+            <h3 id="challengeTitle">🎯 挑战模式</h3>
+            <p id="challengeStats">目标：连续猜对 3 个数字</p>
+            <p id="challengeProgress">进度：0 / 3</p>
+        </div>
+
+        <!-- 状态指示器 -->
+        <div class="status-bar ready" id="statusBar">
+            请选择难度并开始游戏
+        </div>
+
+        <!-- 难度选择 -->
+        <div class="difficulty-selector">
+            <button class="difficulty-btn" data-difficulty="easy">简单 1-50</button>
+            <button class="difficulty-btn" data-difficulty="medium">中等 1-100</button>
+            <button class="difficulty-btn" data-difficulty="hard">困难 1-200</button>
+            <button class="difficulty-btn" data-difficulty="daily">每日挑战</button>
+            <button class="difficulty-btn danger" data-difficulty="extreme">极限模式</button>
+            <button class="difficulty-btn special" data-difficulty="infinite">无限模式</button>
+            <button class="difficulty-btn special" data-difficulty="reverse">反向模式</button>
+            <button class="difficulty-btn danger" data-difficulty="double">双倍模式</button>
+        </div>
+
+        <!-- 游戏状态栏 -->
+        <div class="game-status">
+            <div class="status-item">
+                <span>尝试次数</span>
+                <span class="status-value" id="attempts">0</span>
+            </div>
+            <div class="status-item">
+                <span>剩余时间</span>
+                <span class="status-value timer" id="timer">--</span>
+            </div>
+            <div class="status-item">
+                <span>最佳成绩</span>
+                <span class="status-value" id="bestScore">--</span>
+            </div>
+        </div>
+
+        <section class="game-area">
+            <div class="input-group">
+                <input type="number" id="guessInput" min="1" max="100" placeholder="选择难度后开始游戏" disabled>
+                <button id="submitBtn" disabled>提交猜测</button>
+            </div>
+
+            <div id="message" class="message info">选择难度并点击开始游戏</div>
+
+            <div class="button-group">
+                <button id="restartBtn" class="btn btn-restart">开始游戏</button>
+                <button id="historyBtn" class="btn btn-history">历史记录</button>
+                <button id="challengeBtn" class="btn btn-challenge">挑战模式</button>
+                <button id="statsBtn" class="btn">统计数据</button>
+                <button id="achievementsBtn" class="btn">成就徽章</button>
+            </div>
+
+            <!-- 帮助中心 -->
+            <div class="collapsible-section" id="helpSection">
+                <div class="collapsible-header" onclick="toggleSection('help')">
+                    📖 帮助中心 <span>▼</span>
+                </div>
+                <div class="collapsible-content">
+                    <div class="rules-content">
+                        <ul>
+                            <li><strong>基础玩法：</strong>选择难度后，输入数字，系统会提示"大了"或"小了"</li>
+                            <li><strong>每日挑战：</strong>每天一个固定数字，所有人猜同一个</li>
+                            <li><strong>挑战模式：</strong>连续猜对3个数字，中途失败则重置</li>
+                            <li><strong>极限模式：</strong>30秒内猜对1-500的大数字</li>
+                            <li><strong>无限模式：</strong>无时间限制，但最多尝试20次</li>
+                            <li><strong>反向模式：</strong>需要猜比目标更大的数</li>
+                            <li><strong>双倍模式：</strong>需要连续猜对两个不同的数字</li>
+                            <li><strong>智能提示：</strong>根据接近程度给出不同提示</li>
+                            <li><strong>成就系统：</strong>完成特定条件解锁成就徽章</li>
+                        </ul>
+                        <h4>快捷键：</h4>
+                        <div class="shortcuts-grid">
+                            <div class="shortcut-item"><span class="shortcut-key">Enter</span>提交猜测</div>
+                            <div class="shortcut-item"><span class="shortcut-key">Esc</span>重新开始</div>
+                            <div class="shortcut-item"><span class="shortcut-key">Space</span>切换主题</div>
+                            <div class="shortcut-item"><span class="shortcut-key">M</span>静音开关</div>
+                            <div class="shortcut-item"><span class="shortcut-key">H</span>帮助中心</div>
+                            <div class="shortcut-item"><span class="shortcut-key">C</span>挑战模式</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 挑战模式面板 -->
+            <div class="collapsible-section" id="challengeSection">
+                <div class="collapsible-header" onclick="toggleSection('challenge')">
+                    🎯 挑战模式 <span>▼</span>
+                </div>
+                <div class="collapsible-content">
+                    <p>连续猜对3个数字即可完成挑战！</p>
+                    <div class="challenge-controls">
+                        <button class="btn btn-challenge" id="startChallenge">开始挑战</button>
+                        <button class="btn" id="cancelChallenge" disabled>取消挑战</button>
+                    </div>
+                    <div id="challengeStatus" style="margin-top: 10px; font-weight: bold; color: var(--primary);"></div>
+                </div>
+            </div>
+
+            <!-- 历史记录 -->
+            <div class="collapsible-section" id="historySection">
+                <div class="collapsible-header" onclick="toggleSection('history')">
+                    📜 历史记录 <span>▼</span>
+                </div>
+                <div class="collapsible-content">
+                    <ul class="history-list" id="historyList">
+                        <li class="empty-history">暂无游戏记录</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 统计数据 -->
+            <div class="collapsible-section" id="statsSection">
+                <div class="collapsible-header" onclick="toggleSection('stats')">
+                    📊 统计数据 <span>▼</span>
+                </div>
+                <div class="collapsible-content">
+                    <div class="stats-grid" id="statsGrid">
+                        <!-- 动态生成 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 成就系统 -->
+            <div class="collapsible-section" id="achievementsSection">
+                <div class="collapsible-header" onclick="toggleSection('achievements')">
+                    🏆 成就徽章 <span>▼</span>
+                </div>
+                <div class="collapsible-content">
+                    <div class="achievements-grid" id="achievementsGrid">
+                        <!-- 动态生成 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 设置与数据管理 -->
+            <div class="collapsible-section" id="settingsSection">
+                <div class="collapsible-header" onclick="toggleSection('settings')">
+                    ⚙️ 设置与数据管理 <span>▼</span>
+                </div>
+                <div class="collapsible-content">
+                    <div class="settings-grid">
+                        <div class="setting-item">
+                            <span class="setting-label">🔊 音效开关</span>
+                            <div class="toggle-switch" id="soundSwitch"></div>
+                        </div>
+                        <div class="setting-item">
+                            <span class="setting-label">🌓 夜间模式</span>
+                            <div class="toggle-switch" id="themeSwitch"></div>
+                        </div>
+                    </div>
+                    <div class="data-actions">
+                        <button class="btn" id="exportData">导出数据</button>
+                        <button class="btn" id="importData">导入数据</button>
+                        <button class="btn" id="clearData" style="background: var(--danger); color: white; border: none;">清空数据</button>
+                    </div>
+                    <textarea id="dataTransfer" placeholder="导出或粘贴数据到这里..."></textarea>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- 游戏结束模态框 -->
+    <div class="modal" id="gameOverModal">
+        <div class="modal-content">
+            <h2 class="modal-title" id="modalTitle">游戏结束</h2>
+            <div class="modal-message" id="modalMessage"></div>
+            <div class="modal-achievements" id="modalAchievements">
+                <div class="modal-achievements-title">🎉 解锁新成就！</div>
+                <div class="modal-achievements-list" id="modalAchievementsList"></div>
+            </div>
+            <div>
+                <button class="modal-btn" id="modalBtn">再来一局</button>
+                <button class="modal-btn secondary" id="modalCloseBtn">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="./js/script.js"></script>
+</body>
+</html>
